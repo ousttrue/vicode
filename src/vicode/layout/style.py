@@ -6,4 +6,5 @@ STYLE = prompt_toolkit.styles.Style.from_dict({
     'editor': 'bg:#002200',
     'panel': 'bg:#000022',
     'command': 'bg:#222222',
+    'toolbar.status': 'bg:#DDDDDD #000000',
 })

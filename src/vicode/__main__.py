@@ -14,7 +14,8 @@ class App:
         from .layout.style import STYLE
         self.root = RootLayout()
         self.application = prompt_toolkit.Application(
-            layout=prompt_toolkit.layout.Layout(self.root.container),
+            layout=prompt_toolkit.layout.Layout(
+                self.root.container, self.root.editor),
             full_screen=True,
 
             key_bindings=self.kb,

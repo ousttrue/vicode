@@ -10,7 +10,7 @@ class PanelWindow:
 
         self.container = prompt_toolkit.layout.FloatContainer(
             content=prompt_toolkit.layout.Window(
-                char=' ', ignore_content_width=True, ignore_content_height=True, height=16),
+                char=' ', ignore_content_width=True, ignore_content_height=True, height=12),
             floats=[
                 prompt_toolkit.layout.Float(
                     self.window, left=0, top=0, right=0, bottom=0)
