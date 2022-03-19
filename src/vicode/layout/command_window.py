@@ -46,10 +46,8 @@ class CommandWindow:
                                                                         prompt_toolkit.layout.processors.BeforeInput(':')],
                                                                     )
 
-        self.container = prompt_toolkit.layout.containers.ConditionalContainer(
-            prompt_toolkit.layout.Window(
-                self.control, height=1),
-            filter=prompt_toolkit.filters.has_focus(self.buffer))
+        self.container = prompt_toolkit.layout.Window(
+            self.control, height=1)
 
     def __pt_container__(self) -> prompt_toolkit.layout.Container:
         return self.container

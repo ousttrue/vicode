@@ -9,10 +9,12 @@ class RootLayout:
         from .editor_window import EditorWindow
         from .panel_window import PanelWindow
         from .command_window import CommandWindow
+        from .message_window import MessageWindow
         self.panel = PanelWindow()
         self.sidebar = SidebarWindow()
         self.editor = EditorWindow()
         self.command = CommandWindow()
+        self.message = MessageWindow()
 
         inner = prompt_toolkit.layout.HSplit([
             self.editor,
@@ -26,7 +28,10 @@ class RootLayout:
 
         self.container = prompt_toolkit.layout.HSplit([
             outer,
-            self.command,
+            prompt_toolkit.layout.ConditionalContainer(
+                self.command, self.command.has_focus),
+            prompt_toolkit.layout.ConditionalContainer(
+                self.message, ~self.command.has_focus),
         ])
 
         self.has_focus = prompt_toolkit.filters.Condition(
