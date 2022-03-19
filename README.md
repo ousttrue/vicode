@@ -1,0 +1,2 @@
+# vicode
+vscode style vi
