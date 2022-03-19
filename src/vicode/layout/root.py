@@ -8,18 +8,25 @@ class RootLayout:
         from .sidebar_window import SidebarWindow
         from .editor_window import EditorWindow
         from .panel_window import PanelWindow
+        from .command_window import CommandWindow
         self.panel = PanelWindow()
         self.sidebar = SidebarWindow()
         self.editor = EditorWindow()
+        self.command = CommandWindow()
 
         inner = prompt_toolkit.layout.HSplit([
             self.editor,
             self.panel,
         ])
 
-        self.container = prompt_toolkit.layout.VSplit([
+        outer = prompt_toolkit.layout.VSplit([
             self.sidebar,
             inner,
+        ])
+
+        self.container = prompt_toolkit.layout.HSplit([
+            outer,
+            self.command,
         ])
 
         self.has_focus = prompt_toolkit.filters.Condition(
