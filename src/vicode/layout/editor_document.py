@@ -95,21 +95,22 @@ class EditorDocument:
             text.append(('class:status.filetype',
                         f'{nerdfonts.icons["dev_python"]} '))
 
+        row = self.textarea.document.cursor_position_row + 1
+        col = self.textarea.document.cursor_position_col + 1
+        text.append(('class:status.row', f'{row:4d}'))
+
         info = self.textarea.window.render_info
         if info:
             if info.full_height_visible:
-                text.append(('class:status.row', ' All:'))
+                text.append(('class:status.row', ' All '))
             elif info.top_visible:
-                text.append(('class:status.row', ' Top:'))
+                text.append(('class:status.row', ' Top '))
             elif info.bottom_visible:
-                text.append(('class:status.row', ' Bot:'))
+                text.append(('class:status.row', ' Bot '))
             else:
                 percentage = info.vertical_scroll_percentage
-                text.append(('class:status.row', f' {percentage:02d}%:'))
+                text.append(('class:status.row', f' {percentage:02d}% '))
 
-        row = self.textarea.document.cursor_position_row + 1
-        col = self.textarea.document.cursor_position_col + 1
-        text.append(('class:status.row', f'{row:4d}:'))
-        text.append(('class:status.col', f'{col:4d} '))
+        text.append(('class:status.col', f'{col:4d}'))
 
         return text
