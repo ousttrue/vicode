@@ -17,3 +17,13 @@ vscode style vi
 - `c-w j`
 - `c-w k`
 - `c-w l`
+
+## TODO:
+
+* [ ] panel: logger
+* [ ] editor: tab
+* [ ] panel: tab
+* [ ] sidebar: tab
+* [ ] command: completion. :e
+* [ ] command: EventCommand
+

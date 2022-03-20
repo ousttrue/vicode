@@ -42,10 +42,7 @@ class EventDispatcher:
     async def _worker(self):
         logger.info('start worker')
         while True:
-            if not self._queue.empty():
-                event = self._queue.get_nowait()
-            else:
-                event = await self._queue.get()
+            event = await self._queue.get()
             logger.debug(event)
 
             if not self._handle(*event):
