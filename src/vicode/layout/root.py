@@ -14,7 +14,7 @@ class RootLayout:
         self.panel = PanelWindow()
         self.sidebar = SidebarWindow()
         self.editor = EditorWindow(kb)
-        self.command = CommandWindow()
+        self.command = CommandWindow(kb)
         self.message = MessageWindow()
 
         inner = prompt_toolkit.layout.HSplit([
