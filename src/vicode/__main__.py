@@ -1,3 +1,6 @@
+from typing import List
+import pathlib
+import argparse
 import prompt_toolkit
 import prompt_toolkit.layout
 import prompt_toolkit.output
@@ -28,9 +31,11 @@ class App:
 
         self._bind(self.focus_sidebar, 'c-w', 'h')
         self._bind(self.focus_panel, 'c-w', 'j')
-        self._bind(self.focus_editor, 'c-w', 'k')
-        self._bind(self.focus_editor, 'c-w', 'l')
+        self._bind(self.root.editor.focus, 'c-w', 'k')
+        self._bind(self.root.editor.focus, 'c-w', 'l')
         self._bind(self.focus_command, ':')
+        self._bind(self.root.editor.documents.activate_prev, 'escape', 'h')
+        self._bind(self.root.editor.documents.activate_next, 'escape', 'l')
 
     def _bind(self, callback, *args):
         from prompt_toolkit.filters import vi_navigation_mode
@@ -46,9 +51,6 @@ class App:
     def focus_sidebar(self, event):
         self.focus(self.root.sidebar.buffer)
 
-    def focus_editor(self, event):
-        self.focus(self.root.editor.buffer)
-
     def focus_panel(self, event):
         self.focus(self.root.panel.buffer)
 
@@ -56,16 +58,26 @@ class App:
         event.app.layout.focus(self.root.command.buffer)
         event.app.vi_state.input_mode = prompt_toolkit.key_binding.vi_state.InputMode.INSERT
 
-    async def run_async(self):
+    async def run_async(self, locations: List[pathlib.Path]):
         def pre_run():
             # Start in navigation mode.
             self.application.vi_state.input_mode = prompt_toolkit.key_binding.vi_state.InputMode.NAVIGATION
+
+            for l in locations:
+                self.root.editor.documents.open_location(l)
+
         await self.application.run_async(pre_run=pre_run)
 
 
 async def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("location", nargs="*")
+    args = parser.parse_args()
+
+    locations = [pathlib.Path(l).absolute() for l in args.location]
+
     app = App()
-    await app.run_async()
+    await app.run_async(locations)
 
 
 if __name__ == '__main__':

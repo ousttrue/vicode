@@ -9,6 +9,10 @@
             "type": "python",
             "request": "launch",
             "module": "vicode",
+            "args": [
+                "src/vicode/__main__.py",
+                "src/vicode/layout/root.py",
+            ],
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/src"
             },

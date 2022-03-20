@@ -39,7 +39,7 @@ class RootLayout:
 
     def _has_focus_any_window(self):
         app = get_app()
-        if app.layout.has_focus(self.editor.window) or app.layout.has_focus(self.panel.window) or app.layout.has_focus(self.sidebar.window):
+        if self.editor.has_focus() or app.layout.has_focus(self.panel.window) or app.layout.has_focus(self.sidebar.window):
             return True
         return False
 
