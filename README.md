@@ -1,5 +1,5 @@
 # vicode
-vscode style vi
+vscode style vi.
 
 ## layout
 
@@ -13,17 +13,22 @@ vscode style vi
 +--------------+
 ```
 
-- `c-w h`
-- `c-w j`
-- `c-w k`
-- `c-w l`
+## keyboard shortcut
+
+- `c-w h`: focus sidebar
+- `c-w j`: forus panel
+- `c-w k`: focus editor
+- `c-w l`: focus editor
+- `m-h`: focus prev tab
+- `m-l`: focus next tab
 
 ## TODO:
 
-* [ ] panel: logger
-* [ ] editor: tab
+* [x] editor: tab
 * [ ] panel: tab
+* [ ] panel: logger
 * [ ] sidebar: tab
 * [ ] command: completion. :e
 * [ ] command: EventCommand
-
+* [ ] lsp: client
+* [ ] syntax highlight
