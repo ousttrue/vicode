@@ -40,12 +40,16 @@ class EditorWindow:
 
         self.has_focus = prompt_toolkit.filters.has_focus(self.container)
 
+        from .documents import Documents
+        self.documents = Documents()
+
+        from ..event import DISPATCHER, EventType
+
         def on_active_changed(active):
             self.window_status.children[0] = active.__pt_container__()
             get_app().layout.focus(active)
-
-        from .documents import Documents
-        self.documents = Documents(on_active_changed)
+            get_app().invalidate()
+        DISPATCHER.register(EventType.DocumentActivate, on_active_changed)
 
     def __pt_container__(self) -> prompt_toolkit.layout.Container:
         return self.container

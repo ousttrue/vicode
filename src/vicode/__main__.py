@@ -60,6 +60,10 @@ class App:
 
     async def run_async(self, locations: List[pathlib.Path]):
         def pre_run():
+            assert(self.application.loop)
+            from .event import DISPATCHER
+            DISPATCHER.start(self.application.loop)
+
             # Start in navigation mode.
             self.application.vi_state.input_mode = prompt_toolkit.key_binding.vi_state.InputMode.NAVIGATION
 

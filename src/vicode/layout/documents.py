@@ -15,10 +15,9 @@ class Document:
 
 
 class Documents:
-    def __init__(self, on_active_changed) -> None:
+    def __init__(self) -> None:
         self.documents: List[Document] = []
         self.active: Optional[Document] = None
-        self.on_active_changed = on_active_changed
 
     def open_location(self, path: pathlib.Path):
         document = Document(path)
@@ -26,8 +25,11 @@ class Documents:
         self.activate(document)
 
     def activate(self, document: Document):
+        if self.active == document:
+            return
         self.active = document
-        self.on_active_changed(self.active)
+        from ..event import DISPATCHER, EventType
+        DISPATCHER.enqueue(EventType.DocumentActivate, document)
 
     def activate_next(self, event):
         if not self.active:
