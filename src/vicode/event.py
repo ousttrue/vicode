@@ -1,4 +1,4 @@
-from typing import Any, NamedTuple, Dict, TypeAlias, Callable
+from typing import Any, NamedTuple, Dict, TypeAlias, Callable, Optional
 import logging
 import asyncio
 from enum import Enum, auto
@@ -8,7 +8,10 @@ logger = logging.getLogger(__name__)
 
 
 class EventType(Enum):
-    DocumentActivate = auto()
+    # passive
+    Invalidated = auto()
+    # acitive
+    BufferFocusCommand = auto()
 
 
 class EventValue(NamedTuple):

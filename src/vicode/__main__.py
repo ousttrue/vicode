@@ -15,10 +15,12 @@ class App:
         self.kb = prompt_toolkit.key_binding.KeyBindings()
         from .layout.root import RootLayout
         from .layout.style import STYLE
-        self.root = RootLayout()
+        self.root = RootLayout(self.kb)
         self.application = prompt_toolkit.Application(
             layout=prompt_toolkit.layout.Layout(
-                self.root.container, self.root.editor),
+                self.root.container, 
+                self.root.editor
+                ),
             full_screen=True,
 
             key_bindings=self.kb,
@@ -34,8 +36,6 @@ class App:
         self._bind(self.root.editor.focus, 'c-w', 'k')
         self._bind(self.root.editor.focus, 'c-w', 'l')
         self._bind(self.focus_command, ':')
-        self._bind(self.root.editor.documents.activate_prev, 'escape', 'h')
-        self._bind(self.root.editor.documents.activate_next, 'escape', 'l')
 
     def _bind(self, callback, *args):
         from prompt_toolkit.filters import vi_navigation_mode
@@ -68,7 +68,7 @@ class App:
             self.application.vi_state.input_mode = prompt_toolkit.key_binding.vi_state.InputMode.NAVIGATION
 
             for l in locations:
-                self.root.editor.documents.open_location(l)
+                self.root.editor.open_location(l)
 
         await self.application.run_async(pre_run=pre_run)
 

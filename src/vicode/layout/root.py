@@ -1,10 +1,11 @@
 from prompt_toolkit.application.current import get_app
 import prompt_toolkit.layout
 import prompt_toolkit.filters
+import prompt_toolkit.key_binding
 
 
 class RootLayout:
-    def __init__(self) -> None:
+    def __init__(self, kb: prompt_toolkit.key_binding.KeyBindings) -> None:
         from .sidebar_window import SidebarWindow
         from .editor_window import EditorWindow
         from .panel_window import PanelWindow
@@ -12,7 +13,7 @@ class RootLayout:
         from .message_window import MessageWindow
         self.panel = PanelWindow()
         self.sidebar = SidebarWindow()
-        self.editor = EditorWindow()
+        self.editor = EditorWindow(kb)
         self.command = CommandWindow()
         self.message = MessageWindow()
 
