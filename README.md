@@ -25,9 +25,9 @@ vscode style vi.
 ## TODO:
 
 * [x] editor: tab
-* [ ] panel: tab
-* [ ] panel: logger
-* [ ] sidebar: tab
+* [x] panel: tab
+* [x] panel: logger
+* [x] sidebar: tab
 * [ ] command: completion. :e
 * [ ] command: EventCommand
 * [ ] lsp: client

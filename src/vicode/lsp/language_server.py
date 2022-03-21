@@ -1,6 +1,10 @@
+'''
+https://microsoft.github.io/language-server-protocol/specifications/specification-current/
+'''
 import asyncio
 import logging
 from . import jsonrpc_2_0
+from .import basic_structures
 logger = logging.getLogger(__name__)
 
 
