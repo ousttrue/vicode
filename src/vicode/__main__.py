@@ -1,4 +1,5 @@
 from typing import List
+import logging
 import pathlib
 import argparse
 import prompt_toolkit
@@ -18,9 +19,9 @@ class App:
         self.root = RootLayout(self.kb)
         self.application = prompt_toolkit.Application(
             layout=prompt_toolkit.layout.Layout(
-                self.root.container, 
+                self.root.container,
                 self.root.editor
-                ),
+            ),
             full_screen=True,
 
             key_bindings=self.kb,
@@ -32,7 +33,7 @@ class App:
         )
 
         self._bind(self.focus_sidebar, 'c-w', 'h')
-        self._bind(self.focus_panel, 'c-w', 'j')
+        self._bind(self.root.panel.focus, 'c-w', 'j')
         self._bind(self.root.editor.focus, 'c-w', 'k')
         self._bind(self.root.editor.focus, 'c-w', 'l')
         self._bind(self.focus_command, ':')
@@ -50,9 +51,6 @@ class App:
 
     def focus_sidebar(self, event):
         self.focus(self.root.sidebar.buffer)
-
-    def focus_panel(self, event):
-        self.focus(self.root.panel.buffer)
 
     def focus_command(self, event: prompt_toolkit.key_binding.KeyPressEvent):
         event.app.layout.focus(self.root.command.buffer)
@@ -74,6 +72,8 @@ class App:
 
 
 async def main():
+    logging.basicConfig(level=logging.DEBUG)
+
     parser = argparse.ArgumentParser()
     parser.add_argument("location", nargs="*")
     args = parser.parse_args()

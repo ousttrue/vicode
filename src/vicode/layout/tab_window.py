@@ -18,7 +18,7 @@ class TabWindow:
     focus: active and has_focus(cursor)
     '''
 
-    def __init__(self, kb: prompt_toolkit.key_binding.KeyBindings) -> None:
+    def __init__(self, kb: prompt_toolkit.key_binding.KeyBindings, style='', height: prompt_toolkit.layout.AnyDimension = None) -> None:
         self.kb = kb
 
         self._tabs: List[prompt_toolkit.layout.AnyContainer] = []
@@ -41,12 +41,13 @@ class TabWindow:
 
         self.container = prompt_toolkit.layout.FloatContainer(
             content=prompt_toolkit.layout.Window(
-                char=' ', ignore_content_width=True, ignore_content_height=True),
+                char=' ', ignore_content_width=True, ignore_content_height=True, height=height),
             floats=[
                 prompt_toolkit.layout.Float(
                     self.tabbar_body, left=0, top=0, right=0, bottom=0)
             ],
-            style='class:editor')
+            style=style
+        )
 
         self.has_focus = prompt_toolkit.filters.has_focus(self.container)
 
@@ -99,7 +100,7 @@ class TabWindow:
         if index >= 0 and index < len(self._tabs):
             self.activate(self._tabs[index])
 
-    def focus(self):
+    def focus(self, event=None):
         if self._active:
             get_app().layout.focus(self._active)
         else:

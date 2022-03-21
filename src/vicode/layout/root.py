@@ -11,7 +11,7 @@ class RootLayout:
         from .panel_window import PanelWindow
         from .command_window import CommandWindow
         from .message_window import MessageWindow
-        self.panel = PanelWindow()
+        self.panel = PanelWindow(kb)
         self.sidebar = SidebarWindow()
         self.editor = EditorWindow(kb)
         self.command = CommandWindow(kb)
@@ -40,7 +40,7 @@ class RootLayout:
 
     def _has_focus_any_window(self):
         app = get_app()
-        if self.editor.has_focus() or app.layout.has_focus(self.panel.window) or app.layout.has_focus(self.sidebar.window):
+        if self.editor.has_focus() or self.panel.has_focus() or app.layout.has_focus(self.sidebar.window):
             return True
         return False
 
