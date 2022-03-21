@@ -6,16 +6,19 @@ import prompt_toolkit.key_binding
 
 class RootLayout:
     def __init__(self, kb: prompt_toolkit.key_binding.KeyBindings) -> None:
-        from .sidebar_window import SidebarWindow
+        from .tab_window import TabWindow
         from .editor_window import EditorWindow
-        from .panel_window import PanelWindow
         from .command_window import CommandWindow
         from .message_window import MessageWindow
-        self.panel = PanelWindow(kb)
-        self.sidebar = SidebarWindow()
+        from .logger_window import LoggerWindow
+        self.sidebar = TabWindow(kb, style='class:sidebar', width=24)
+        self.panel = TabWindow(kb, style='class:panel', height=16)
         self.editor = EditorWindow(kb)
+
         self.command = CommandWindow(kb)
         self.message = MessageWindow()
+        self.logger = LoggerWindow()
+        self.panel.add(self.logger)
 
         inner = prompt_toolkit.layout.HSplit([
             self.editor,
@@ -24,7 +27,7 @@ class RootLayout:
 
         outer = prompt_toolkit.layout.VSplit([
             self.sidebar,
-            inner,
+            inner
         ])
 
         self.container = prompt_toolkit.layout.HSplit([
@@ -40,7 +43,7 @@ class RootLayout:
 
     def _has_focus_any_window(self):
         app = get_app()
-        if self.editor.has_focus() or self.panel.has_focus() or app.layout.has_focus(self.sidebar.window):
+        if self.editor.has_focus() or self.sidebar.has_focus() or self.panel.has_focus():
             return True
         return False
 

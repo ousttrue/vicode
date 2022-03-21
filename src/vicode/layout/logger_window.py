@@ -17,9 +17,8 @@ class LoggerWindow(logging.Handler):
         self.logs: prompt_toolkit.formatted_text.StyleAndTextTuples = []
         self.control = prompt_toolkit.layout.FormattedTextControl(
             lambda: self.logs, focusable=True)
-        window = prompt_toolkit.layout.Window(
+        self.container = prompt_toolkit.layout.Window(
             self.control, style=DEFAULT)
-        self.container = prompt_toolkit.layout.ScrollablePane(window, height=8)
 
         # set root logger
         self.setFormatter(logging.Formatter(
@@ -48,8 +47,8 @@ class LoggerWindow(logging.Handler):
                 raise NotImplementedError()
         self.logs.append(('', msg))
         self.logs.append(NL)
-        if self.get_line_count() > 8:
-            self.container.vertical_scroll = self.get_line_count() - 8
+        # if self.get_line_count() > 8:
+        #     self.container.vertical_scroll = self.get_line_count() - 8
         get_app().invalidate()
 
     def write(self, m):
@@ -57,13 +56,3 @@ class LoggerWindow(logging.Handler):
 
     def get_line_count(self):
         return len([x for x in self.logs if x == NL])
-
-    def remove_line(self, index):
-        logs = []
-        i = 0
-        for x in self.logs:
-            if i != index:
-                logs.append(x)
-            if x == NL:
-                i += 1
-        self.logs = logs

@@ -32,11 +32,19 @@ class App:
             cursor=prompt_toolkit.cursor_shapes.CursorShape.BLOCK,
         )
 
-        self._bind(self.focus_sidebar, 'c-w', 'h')
+        self._bind(self.root.sidebar.focus, 'c-w', 'h')
+        self._bind(self.root.editor.focus, 'c-w', 'l')
         self._bind(self.root.panel.focus, 'c-w', 'j')
         self._bind(self.root.editor.focus, 'c-w', 'k')
-        self._bind(self.root.editor.focus, 'c-w', 'l')
         self._bind(self.focus_command, ':')
+
+        from.event import DISPATCHER, EventType
+
+        def on_focus(container):
+            self.application.layout.focus(container)
+            self.application.invalidate()
+
+        DISPATCHER.register(EventType.BufferFocusCommand, on_focus)
 
     def _bind(self, callback, *args):
         from prompt_toolkit.filters import vi_navigation_mode
@@ -48,9 +56,6 @@ class App:
 
     def focus(self, target):
         self.application.layout.focus(target)
-
-    def focus_sidebar(self, event):
-        self.focus(self.root.sidebar.buffer)
 
     def focus_command(self, event: prompt_toolkit.key_binding.KeyPressEvent):
         event.app.layout.focus(self.root.command.buffer)

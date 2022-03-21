@@ -18,6 +18,9 @@ class EventValue(NamedTuple):
     event_type: EventType
     payload: Any
 
+    def __str__(self) -> str:
+        return f'<{self.event_type}, {self.payload}>'
+
 
 EventHandler: TypeAlias = Callable[[Any], None]
 

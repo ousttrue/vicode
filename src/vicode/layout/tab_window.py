@@ -18,7 +18,9 @@ class TabWindow:
     focus: active and has_focus(cursor)
     '''
 
-    def __init__(self, kb: prompt_toolkit.key_binding.KeyBindings, style='', height: prompt_toolkit.layout.AnyDimension = None) -> None:
+    def __init__(self, kb: prompt_toolkit.key_binding.KeyBindings, style='',
+                 width: prompt_toolkit.layout.AnyDimension = None,
+                 height: prompt_toolkit.layout.AnyDimension = None) -> None:
         self.kb = kb
 
         self._tabs: List[prompt_toolkit.layout.AnyContainer] = []
@@ -41,7 +43,7 @@ class TabWindow:
 
         self.container = prompt_toolkit.layout.FloatContainer(
             content=prompt_toolkit.layout.Window(
-                char=' ', ignore_content_width=True, ignore_content_height=True, height=height),
+                char=' ', ignore_content_width=True, ignore_content_height=True, height=height, width=width),
             floats=[
                 prompt_toolkit.layout.Float(
                     self.tabbar_body, left=0, top=0, right=0, bottom=0)
@@ -79,10 +81,11 @@ class TabWindow:
         if self._active == document:
             return
         self._active = document
-        self.tabbar_body.children[1] = prompt_toolkit.layout.to_container(
+        container = prompt_toolkit.layout.to_container(
             self._active)
-        get_app().layout.focus(self._active)
-        get_app().invalidate()
+        self.tabbar_body.children[1] = container
+        from ..event import DISPATCHER, EventType
+        DISPATCHER.enqueue(EventType.BufferFocusCommand, container)
 
     def activate_next(self, event: prompt_toolkit.key_binding.KeyPressEvent):
         if not self._active:
