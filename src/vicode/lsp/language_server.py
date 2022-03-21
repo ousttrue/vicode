@@ -5,6 +5,7 @@ import asyncio
 import logging
 from . import jsonrpc_2_0
 from .import basic_structures
+from .import protocol
 logger = logging.getLogger(__name__)
 
 
@@ -44,11 +45,10 @@ class LanguageServer:
             l = await self._process.stderr.readline()
             logger.error(l.decode('utf-8'))
 
-    async def requestInitialize(self):
+    async def requestInitialize(self, params: protocol.InitializeParams):
         assert(self._process.stdin)
-        future = self.rpcDispatcher.request(self._process.stdin, 'initialize', {
-            'capabilities': {}
-        })
+        future = self.rpcDispatcher.request(
+            self._process.stdin, 'initialize', params)
         return await future
 
 

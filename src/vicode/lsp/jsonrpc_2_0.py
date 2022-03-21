@@ -87,7 +87,7 @@ class RpcDispatcher:
     async def process_notification_async(self, method: str, data):
         raise NotImplementedError()
 
-    def request(self, stdin: asyncio.StreamWriter, method: str, params: dict) -> asyncio.Future:
+    def request(self, stdin: asyncio.StreamWriter, method: str, params) -> asyncio.Future:
         request_id = self._request_id
         self._request_id += 1
         future = asyncio.Future()

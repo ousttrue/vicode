@@ -1,7 +1,7 @@
 '''
 https://microsoft.github.io/language-server-protocol/specifications/specification-current/#uri
 '''
-from typing import TypedDict, List, Any, Dict, TypeAlias
+from typing import TypedDict, List, Any, Dict, TypeAlias, Union
 from enum import IntEnum
 
 
@@ -875,3 +875,13 @@ class WorkDoneProgressEnd(TypedDict, total=False):
     of the operation.
     '''
     message: str
+
+
+ProgressToken: TypeAlias = Union[int, str]
+
+
+class WorkDoneProgressParams(TypedDict, total=False):
+    '''
+    An optional token that a server can use to report work done progress.
+    '''
+    workDoneToken: ProgressToken
