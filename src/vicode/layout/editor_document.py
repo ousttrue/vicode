@@ -27,8 +27,8 @@ class EditorDocument:
 
         self.window_status = prompt_toolkit.layout.HSplit(
             [
+                self.status,
                 self.textarea,
-                self.status
             ])
 
     def __pt_container__(self) -> prompt_toolkit.layout.Container:
@@ -75,15 +75,9 @@ class EditorDocument:
         else:
             text.append(('class:status.mode.nofocus', ' NOFOCUS '))
 
-        def recording():
-            if app.vi_state.recording_register:
-                return 'recording '
-            else:
-                return ''
-
-        text.append(('class:status.location', ' '))
-        text.append(('class:status.location', self.location.name))
-        text.append(('class:status.location', ' '))
+        # text.append(('class:status.location', ' '))
+        # text.append(('class:status.location', self.location.name))
+        # text.append(('class:status.location', ' '))
 
         return text
 

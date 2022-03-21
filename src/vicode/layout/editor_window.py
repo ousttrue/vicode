@@ -22,4 +22,4 @@ class EditorWindow:
     def open_location(self, path: pathlib.Path):
         from .editor_document import EditorDocument
         document = EditorDocument(path)
-        self.container.tabs.add(document)
+        self.container.add(document)
