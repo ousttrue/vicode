@@ -1,7 +1,9 @@
-from typing import TypedDict, Dict
-import re
+from typing import TypedDict, Dict, Any, Optional
 import asyncio
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Message(TypedDict):
@@ -9,27 +11,66 @@ class Message(TypedDict):
     jsonrpc: str
 
 
-class Request(Message):
+class ParamsOptional(TypedDict, total=False):
+    params: dict
+
+
+class Request(Message, ParamsOptional):
     # increment
     id: int
     # "textDocument/didOpen"
     method: str
-    params: dict
 
 
 def make_request(request_id: int, method: str, params) -> Request:
-    return Request(
-        jsonrpc="2.0",
-        id=request_id,
-        method=method,
-        params=params
-    )
+    if params is None:
+        return Request(
+            jsonrpc="2.0",
+            id=request_id,
+            method=method,
+        )
+    else:
+        return Request(
+            jsonrpc="2.0",
+            id=request_id,
+            method=method,
+            params=params
+        )
+
+
+class Notification(Message, ParamsOptional):
+    method: str
+
+
+def make_notification(method: str, params) -> Notification:
+    if params is None:
+        return Notification(
+            jsonrpc="2.0",
+            method=method,
+        )
+    else:
+        return Notification(
+            jsonrpc="2.0",
+            method=method,
+            params=params
+        )
+
+
+def send_message(stdin: asyncio.StreamWriter, message):
+    bin = json.dumps(message).encode('utf-8')
+
+    # write
+    header = f'Content-Length: {len(bin)}\r\n'
+    stdin.write(header.encode('ascii'))
+    stdin.write(b'\r\n')
+    stdin.write(bin)
 
 
 class RpcDispatcher:
     def __init__(self) -> None:
         self._request_id = 1
         self._request_map: Dict[int, asyncio.Future] = {}
+        self._notify_map: Dict[str, Any] = {}
 
     async def read_rpc_message_async(self, stdout: asyncio.StreamReader):
         length = 0
@@ -85,7 +126,11 @@ class RpcDispatcher:
         raise NotImplementedError()
 
     async def process_notification_async(self, method: str, data):
-        raise NotImplementedError()
+        callback = self._notify_map.get(method)
+        if not callback:
+            logger.warning(f'unknown notification: {method} => {data}')
+            return
+        callback(data)
 
     def request(self, stdin: asyncio.StreamWriter, method: str, params) -> asyncio.Future:
         request_id = self._request_id
@@ -94,13 +139,14 @@ class RpcDispatcher:
         assert(request_id not in self._request_map)
         self._request_map[request_id] = future
 
-        request = make_request(request_id, method, params)
-        bin = json.dumps(request).encode('utf-8')
-
-        # write
-        header = f'Content-Length: {len(bin)}\r\n'
-        stdin.write(header.encode('ascii'))
-        stdin.write(b'\r\n')
-        stdin.write(bin)
+        message = make_request(request_id, method, params)
+        send_message(stdin, message)
 
         return future
+
+    def notify(self, stdin: asyncio.StreamWriter, method: str, params):
+        message = make_notification(method, params)
+        send_message(stdin, message)
+
+    def on_notify(self, method: str, callback):
+        self._notify_map[method] = callback

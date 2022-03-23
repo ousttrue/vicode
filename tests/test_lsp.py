@@ -4,24 +4,55 @@ import pathlib
 import unittest
 import asyncio
 
-HERE = pathlib.Path(__file__).absolute().parent
+FILE = pathlib.Path(__file__).absolute()
+HERE = FILE.parent
 sys.path.append(str(HERE.parent / 'src'))
 
 
 class TestLanguageServer(unittest.IsolatedAsyncioTestCase):
 
     async def test_pyls(self):
-        from vicode.lsp import language_server
-        from vicode.lsp.protocol import InitializeParams, ClientCapabilities
+        from vicode.lsp import client
+        from vicode.lsp import protocol
 
-        server = await language_server.popen(asyncio.get_event_loop())
-        self.assertIsNotNone(server)
+        client = await client.popen(asyncio.get_event_loop())
+        self.assertIsNotNone(client)
 
-        response = await server.requestInitialize(InitializeParams(
+        publishDiagnostic_future = asyncio.Future()
+
+        def on_notify(params):
+            publishDiagnostic_future.set_result(params)
+        client.rpcDispatcher.on_notify(
+            'textDocument/publishDiagnostics', on_notify)
+
+        # initialize
+        response = await client.request_initialize(protocol.InitializeParams(
             processId=os.getpid(),
-            capabilities=ClientCapabilities(),
+            capabilities=protocol.ClientCapabilities(),
         ))
-        self.assertIsNotNone(response)
+        self.assertTrue('capabilities' in response)
+
+        # initialized
+        client.notify_initialized(protocol.InitializedParams())
+
+        # open
+        uri = FILE
+        client.notify_textDocument_didOpen(protocol.DidOpenTextDocumentParams(
+            textDocument=protocol.TextDocumentItem(
+                uri=str(uri),
+                languageId='python',
+                version=1,
+                text=uri.read_text()
+            )
+        ))
+
+        # diagnostics
+        diagnostic = await publishDiagnostic_future
+        self.assertIsNotNone(diagnostic)
+
+        # shutdown
+        await client.request_shutdown()
+        self.assertTrue(True)
 
 
 if __name__ == '__main__':

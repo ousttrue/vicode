@@ -1442,3 +1442,16 @@ class InitializeParams(WorkDoneProgressParams, InitializeParamsOptinal):
     The capabilities provided by the client(editor or tool)
     '''
     capabilities: ClientCapabilities
+
+
+class InitializedParams(TypedDict):
+    '''
+    https://microsoft.github.io/language-server-protocol/specifications/specification-current/#initialized
+    '''
+
+
+class DidOpenTextDocumentParams(TypedDict):
+    '''
+    The document that was opened.
+    '''
+    textDocument: TextDocumentItem
