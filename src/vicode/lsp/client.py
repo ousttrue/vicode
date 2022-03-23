@@ -1,22 +1,34 @@
 '''
 https://microsoft.github.io/language-server-protocol/specifications/specification-current/
 '''
+from typing import Optional
+import pathlib
 import asyncio
 import logging
 from . import jsonrpc_2_0
 from .import protocol
 logger = logging.getLogger(__name__)
 
+LSP_COMMAND_MAP = {
+    'python': ['C:/Python310/Scripts/pyls.exe'],
+}
+
 
 class Client:
-    def __init__(self, loop: asyncio.events.AbstractEventLoop, process: asyncio.subprocess.Process) -> None:
-        assert(process)
-        assert(process.stdin)
-        self.loop = loop
-        self._process = process
+    def __init__(self, *command: str, workspace_dir: Optional[pathlib.Path] = None) -> None:
+        self.command = command
+        self.workspce_dir = workspace_dir
+
+    async def launch(self, loop: asyncio.AbstractEventLoop):
+        self._process = await asyncio.subprocess.create_subprocess_exec(*self.command,
+                                                                        stdin=asyncio.subprocess.PIPE,
+                                                                        stdout=asyncio.subprocess.PIPE,
+                                                                        stderr=asyncio.subprocess.PIPE,
+                                                                        )
+
         self.rpcDispatcher = jsonrpc_2_0.RpcDispatcher()
-        self.loop.create_task(self._out_async())
-        self.loop.create_task(self._err_async())
+        loop.create_task(self._out_async())
+        loop.create_task(self._err_async())
 
     # def __del__(self):
     #     if isinstance(self._process.returncode, int):
@@ -89,11 +101,27 @@ class Client:
         self.rpcDispatcher.notify(
             self._process.stdin, 'textDocument/didOpen', params)
 
+    def notify_textDocument_didClose(self, params: protocol.DidCloseTextDocumentParams):
+        '''
+        https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_didClose        
+        '''
+        assert(self._process.stdin)
+        self.rpcDispatcher.notify(
+            self._process.stdin, 'textDocument/didClose', params)
 
-async def popen(loop: asyncio.events.AbstractEventLoop, path='C:/Python310/Scripts/pyls.exe', *args):
-    proc = await asyncio.subprocess.create_subprocess_exec(path, *args,
-                                                           stdin=asyncio.subprocess.PIPE,
-                                                           stdout=asyncio.subprocess.PIPE,
-                                                           stderr=asyncio.subprocess.PIPE,
-                                                           )
-    return Client(loop, proc)
+
+async def popen(loop: asyncio.events.AbstractEventLoop, *command: str) -> Client:
+
+    client = Client(*command)
+    await client.launch(loop)
+    return client
+
+
+def create_client(workspace_dir: pathlib.Path, filetype: str) -> Optional[Client]:
+    command = LSP_COMMAND_MAP.get(filetype)
+    if not command:
+        return
+
+    client = Client(*command, workspace_dir=workspace_dir)
+
+    return client

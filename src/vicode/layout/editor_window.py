@@ -16,3 +16,10 @@ class EditorWindow(TabWindow):
         from .editor_document import EditorDocument
         document = EditorDocument(path)
         self.add(document)
+
+    def on_activated(self):
+        if self._active is None:
+            return
+        from .editor_document import EditorDocument
+        from ..event import EventType, DISPATCHER
+        DISPATCHER.enqueue(EventType.DocumentActivated, self._active)

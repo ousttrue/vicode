@@ -1,3 +1,4 @@
+from typing import Optional
 import pathlib
 import nerdfonts
 from prompt_toolkit.application.current import get_app
@@ -7,13 +8,18 @@ import prompt_toolkit.key_binding.vi_state
 import prompt_toolkit.selection
 
 
+FILE_TYPE_MAP = {
+    '.py': 'python',
+}
+
+
 class EditorDocument:
     def __init__(self, location: pathlib.Path) -> None:
         self.location = location
         self.textarea = prompt_toolkit.widgets.TextArea()
         self.textarea.text = location.read_text()
 
-        self.ft = location.suffix.lower()
+        self.ft = FILE_TYPE_MAP[location.suffix.lower()]
 
         from .statusbar_window import StatusBarWindow, StatusBarRightWindow
         self.status = prompt_toolkit.layout.VSplit(
@@ -30,6 +36,13 @@ class EditorDocument:
                 self.status,
                 self.textarea,
             ])
+
+        # from ..event import EventType, DISPATCHER
+        # DISPATCHER.enqueue(EventType.BufferCreated, self)
+
+    @property
+    def filetype(self) -> Optional[str]:
+        return self.ft
 
     def __pt_container__(self) -> prompt_toolkit.layout.Container:
         return self.window_status

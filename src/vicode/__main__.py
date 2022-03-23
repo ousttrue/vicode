@@ -1,4 +1,5 @@
 from typing import List
+import asyncio
 import logging
 import pathlib
 import argparse
@@ -41,10 +42,14 @@ class App:
         from.event import DISPATCHER, EventType
 
         def on_focus(container):
+            assert(container)
             self.application.layout.focus(container)
             self.application.invalidate()
 
         DISPATCHER.register(EventType.BufferFocusCommand, on_focus)
+
+        from .workspace import WorkSpace
+        self.workspace = WorkSpace(pathlib.Path('.'))
 
     def _bind(self, callback, *args):
         from prompt_toolkit.filters import vi_navigation_mode
@@ -63,12 +68,14 @@ class App:
 
     async def run_async(self, locations: List[pathlib.Path]):
         def pre_run():
-            assert(self.application.loop)
+            assert(isinstance(self.application.loop, asyncio.AbstractEventLoop))
             from .event import DISPATCHER
             DISPATCHER.start(self.application.loop)
 
             # Start in navigation mode.
             self.application.vi_state.input_mode = prompt_toolkit.key_binding.vi_state.InputMode.NAVIGATION
+
+            self.workspace.loop = self.application.loop
 
             for l in locations:
                 self.root.editor.open_location(l)

@@ -87,6 +87,11 @@ class TabWindow:
         from ..event import DISPATCHER, EventType
         DISPATCHER.enqueue(EventType.BufferFocusCommand, container)
 
+        self.on_activated()
+
+    def on_activated(self):
+        pass
+
     def activate_next(self, event: prompt_toolkit.key_binding.KeyPressEvent):
         if not self._active:
             index = 0

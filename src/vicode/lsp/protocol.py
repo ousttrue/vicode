@@ -1455,3 +1455,11 @@ class DidOpenTextDocumentParams(TypedDict):
     The document that was opened.
     '''
     textDocument: TextDocumentItem
+
+
+class DidCloseTextDocumentParams(TypedDict):
+    '''
+    The document that was closed.
+    '''
+    textDocument: TextDocumentIdentifier
+

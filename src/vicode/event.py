@@ -8,10 +8,12 @@ logger = logging.getLogger(__name__)
 
 
 class EventType(Enum):
-    # passive
-    Invalidated = auto()
     # acitive
     BufferFocusCommand = auto()
+    # passive
+    Invalidated = auto()
+    BufferCreated = auto()
+    DocumentActivated = auto()
 
 
 class EventValue(NamedTuple):
@@ -43,7 +45,8 @@ class EventDispatcher:
             return True
         except Exception as e:
             logger.exception(e)
-            raise
+            # raise
+            return False
 
     async def _worker(self):
         logger.info('start worker')
@@ -51,8 +54,11 @@ class EventDispatcher:
             event = await self._queue.get()
             logger.debug(event)
 
-            if not self._handle(*event):
-                logger.error('unhandled event: %s', event)
+            try:
+                if not self._handle(*event):
+                    logger.error('unhandled event: %s', event)
+            except Exception as e:
+                logger.exception(e)
 
     def enqueue(self, event_type: EventType, payload: Any):
         self._queue.put_nowait(EventValue(event_type, payload))
