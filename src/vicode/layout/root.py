@@ -17,7 +17,7 @@ class RootLayout:
 
         self.command = CommandWindow(kb)
         self.message = MessageWindow()
-        self.logger = LoggerWindow()
+        self.logger = LoggerWindow(kb)
         self.panel.add(self.logger)
 
         inner = prompt_toolkit.layout.HSplit([

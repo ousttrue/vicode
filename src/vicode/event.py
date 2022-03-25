@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 class EventType(Enum):
     # acitive
+    OpenCommand = auto()
     BufferFocusCommand = auto()
     # passive
     Invalidated = auto()
@@ -40,8 +41,13 @@ class EventDispatcher:
         self._handlers[event_type] = handler
 
     def _handle(self, event_type: EventType, palyload: Any) -> bool:
+        handler = self._handlers.get(event_type)
+        if not handler:
+            logger.error(f'handler not found: {event_type}')
+            return False
+
         try:
-            self._handlers[event_type](palyload)
+            handler(palyload)
             return True
         except Exception as e:
             logger.exception(e)

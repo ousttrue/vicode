@@ -66,7 +66,7 @@ class App:
         event.app.layout.focus(self.root.command.buffer)
         event.app.vi_state.input_mode = prompt_toolkit.key_binding.vi_state.InputMode.INSERT
 
-    async def run_async(self, locations: List[pathlib.Path]):
+    async def run_async(self):
         def pre_run():
             assert(isinstance(self.application.loop, asyncio.AbstractEventLoop))
             from .event import DISPATCHER
@@ -76,9 +76,6 @@ class App:
             self.application.vi_state.input_mode = prompt_toolkit.key_binding.vi_state.InputMode.NAVIGATION
 
             self.workspace.loop = self.application.loop
-
-            for l in locations:
-                self.root.editor.open_location(l)
 
         await self.application.run_async(pre_run=pre_run)
 
@@ -90,10 +87,12 @@ async def main():
     parser.add_argument("location", nargs="*")
     args = parser.parse_args()
 
-    locations = [pathlib.Path(l).absolute() for l in args.location]
-
     app = App()
-    await app.run_async(locations)
+    from .event import EventType, DISPATCHER
+    for location in args.location:
+        DISPATCHER.enqueue(EventType.OpenCommand,
+                           pathlib.Path(location).absolute())
+    await app.run_async()
 
 
 if __name__ == '__main__':
