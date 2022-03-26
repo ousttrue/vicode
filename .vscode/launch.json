@@ -31,7 +31,10 @@
                 "PYTHONPATH": "${workspaceFolder}/src"
             },
             "justMyCode": false,
-            "console": "externalTerminal"
+            "console": "externalTerminal",
+            "linux": {
+                "console": "integratedTerminal"
+            }
         }
     ]
 }
