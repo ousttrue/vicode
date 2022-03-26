@@ -53,8 +53,8 @@ class TabWindow:
 
         self.has_focus = prompt_toolkit.filters.has_focus(self.container)
 
-        self._bind(self.activate_next, 'escape', 'l')
-        self._bind(self.activate_prev, 'escape', 'h')
+        self._bind(self.activate_next, ']')
+        self._bind(self.activate_prev, '[')
 
     def __pt_container__(self) -> prompt_toolkit.layout.Container:
         return self.container

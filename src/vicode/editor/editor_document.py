@@ -1,16 +1,21 @@
 from typing import Optional
+import logging
 import re
 import pathlib
 import nerdfonts
 from prompt_toolkit.application.current import get_app
 import prompt_toolkit.widgets
 import prompt_toolkit.layout
+import prompt_toolkit.key_binding
 import prompt_toolkit.key_binding.vi_state
 import prompt_toolkit.selection
 import prompt_toolkit.lexers
 import prompt_toolkit.document
 import prompt_toolkit.buffer
 import prompt_toolkit.completion
+import prompt_toolkit.filters
+
+logger = logging.getLogger(__name__)
 
 
 def create_lexer(location: Optional[pathlib.Path]) -> prompt_toolkit.lexers.Lexer:
@@ -49,11 +54,12 @@ class DocumentWordsCompleter(prompt_toolkit.completion.Completer):
 
 
 class EditorDocument:
-    def __init__(self, location: pathlib.Path) -> None:
+    def __init__(self, location: pathlib.Path, kb: prompt_toolkit.key_binding.KeyBindings) -> None:
         self.location = location
         self.buffer = prompt_toolkit.buffer.Buffer(
             completer=DocumentWordsCompleter()
         )
+        self.has_focus = prompt_toolkit.filters.has_focus(self.buffer)
         self.control = prompt_toolkit.layout.BufferControl(
             self.buffer, lexer=create_lexer(location))
         self.container = prompt_toolkit.layout.Window(self.control, left_margins=[
@@ -79,8 +85,16 @@ class EditorDocument:
                 self.container,
             ])
 
-        # from ..event import EventType, DISPATCHER
-        # DISPATCHER.enqueue(EventType.BufferCreated, self)
+        self.kb = kb
+        self._bind(self.apply_formatter, "escape", "F")
+
+    def _bind(self, callback, *args):
+        from prompt_toolkit.filters import vi_navigation_mode
+        self.kb.add(
+            *args, filter=(self.has_focus & vi_navigation_mode))(callback)
+
+    def apply_formatter(self, event):
+        logger.debug('format')
 
     @property
     def filetype(self) -> Optional[str]:

@@ -36,7 +36,7 @@ class EditorWindow(TabWindow):
                     self.focus()
                     return
 
-        tab = EditorDocument(item.location)
+        tab = EditorDocument(item.location, self.kb)
         tab.buffer.cursor_position = tab.buffer.document.translate_row_col_to_index(
             item.row, item.col)
 
