@@ -31,13 +31,13 @@ class EditorWindow(TabWindow):
             if isinstance(tab, EditorDocument):
                 if tab.location == item.location:
                     self.activate(tab)
-                    tab.textarea.buffer.cursor_position = tab.textarea.buffer.document.translate_row_col_to_index(
+                    tab.buffer.cursor_position = tab.buffer.document.translate_row_col_to_index(
                         item.row, item.col)
                     self.focus()
                     return
 
         tab = EditorDocument(item.location)
-        tab.textarea.buffer.cursor_position = tab.textarea.buffer.document.translate_row_col_to_index(
+        tab.buffer.cursor_position = tab.buffer.document.translate_row_col_to_index(
             item.row, item.col)
 
         self.add(tab)

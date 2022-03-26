@@ -101,7 +101,7 @@ class WorkSpace:
 
         client = self.get_or_launch_lsp(filetype)
         if client:
-            client.activate(buffer.location, filetype, buffer.textarea.text)
+            client.activate(buffer.location, filetype, buffer.buffer.text)
 
     def get_or_launch_lsp(self, filetype: str) -> Optional[ClientHandler]:
         assert(isinstance(self.loop, asyncio.AbstractEventLoop))

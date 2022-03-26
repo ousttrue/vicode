@@ -24,7 +24,7 @@ vscode style vi powered by [ptk](https://python-prompt-toolkit.readthedocs.io/en
 
 ## TODO:
 
-* [ ] lexer: syntax highlight
+* [x] lexer: syntax highlight
 * [x] editor: tab
 * [ ] editor: lineno
 * [ ] editor: sign

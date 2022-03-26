@@ -8,6 +8,7 @@ import prompt_toolkit.key_binding.vi_state
 import prompt_toolkit.selection
 import prompt_toolkit.lexers
 import prompt_toolkit.document
+import prompt_toolkit.buffer
 
 
 def create_lexer(location: Optional[pathlib.Path]) -> prompt_toolkit.lexers.Lexer:
@@ -25,9 +26,11 @@ FILE_TYPE_MAP = {
 class EditorDocument:
     def __init__(self, location: pathlib.Path) -> None:
         self.location = location
-        self.textarea = prompt_toolkit.widgets.TextArea(
-            lexer=create_lexer(location))
-        self.textarea.text = location.read_text()
+        self.buffer = prompt_toolkit.buffer.Buffer()
+        self.control = prompt_toolkit.layout.BufferControl(
+            self.buffer, lexer=create_lexer(location))
+        self.container = prompt_toolkit.layout.Window(self.control)
+        self.buffer.text = location.read_text()
 
         self.ft = FILE_TYPE_MAP[location.suffix.lower()]
 
@@ -44,7 +47,7 @@ class EditorDocument:
         self.window_status = prompt_toolkit.layout.HSplit(
             [
                 self.status,
-                self.textarea,
+                self.container,
             ])
 
         # from ..event import EventType, DISPATCHER
@@ -67,14 +70,14 @@ class EditorDocument:
             prompt_toolkit.key_binding.vi_state.InputMode.INSERT,
             prompt_toolkit.key_binding.vi_state.InputMode.INSERT_MULTIPLE)
         replace_mode = app.vi_state.input_mode == prompt_toolkit.key_binding.vi_state.InputMode.REPLACE
-        sel = self.textarea.buffer.selection_state
+        sel = self.buffer.selection_state
         temp_navigation = app.vi_state.temporary_navigation_mode
         visual_line = sel is not None and sel.type == prompt_toolkit.selection.SelectionType.LINES
         visual_block = sel is not None and sel.type == prompt_toolkit.selection.SelectionType.BLOCK
         visual_char = sel is not None and sel.type == prompt_toolkit.selection.SelectionType.CHARACTERS
 
         text = []
-        if get_app().layout.has_focus(self.textarea.buffer):
+        if get_app().layout.has_focus(self.buffer):
             if insert_mode:
                 if temp_navigation:
                     text.append(('class:status.mode.insert', '(insert)'))
@@ -112,11 +115,11 @@ class EditorDocument:
             text.append(('class:status.filetype',
                         f'{nerdfonts.icons["dev_python"]} '))
 
-        row = self.textarea.document.cursor_position_row + 1
-        col = self.textarea.document.cursor_position_col + 1
+        row = self.buffer.document.cursor_position_row + 1
+        col = self.buffer.document.cursor_position_col + 1
         text.append(('class:status.row', f'{row:4d}'))
 
-        info = self.textarea.window.render_info
+        info = self.container.render_info
         if info:
             if info.full_height_visible:
                 text.append(('class:status.row', ' All '))
