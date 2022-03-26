@@ -3,15 +3,21 @@ https://microsoft.github.io/language-server-protocol/specifications/specificatio
 '''
 from typing import Optional
 import pathlib
+import platform
 import asyncio
 import logging
 from . import jsonrpc_2_0
 from .import protocol
 logger = logging.getLogger(__name__)
 
-LSP_COMMAND_MAP = {
-    'python': ['C:/Python310/Scripts/pyls.exe'],
-}
+if platform.system() == 'Windows':
+    LSP_COMMAND_MAP = {
+        'python': ['C:/Python310/Scripts/pyls.exe'],
+    }
+else:
+    LSP_COMMAND_MAP = {
+        'python': ['pyls'],
+    }
 
 
 class Client:
@@ -108,6 +114,10 @@ class Client:
         assert(self._process.stdin)
         self.rpcDispatcher.notify(
             self._process.stdin, 'textDocument/didClose', params)
+
+
+async def popen_pyls(loop: asyncio.events.AbstractEventLoop) -> Client:
+    return await popen(loop, *LSP_COMMAND_MAP['python'])
 
 
 async def popen(loop: asyncio.events.AbstractEventLoop, *command: str) -> Client:

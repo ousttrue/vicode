@@ -15,7 +15,7 @@ class TestLanguageServer(unittest.IsolatedAsyncioTestCase):
         from vicode.lsp import client
         from vicode.lsp import protocol
 
-        client = await client.popen(asyncio.get_event_loop())
+        client = await client.popen_pyls(asyncio.get_event_loop())
         self.assertIsNotNone(client)
 
         publishDiagnostic_future = asyncio.Future()
