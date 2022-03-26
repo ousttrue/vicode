@@ -88,7 +88,8 @@ class WorkSpace:
         self.workspace_dir = get_workspace_dir(path)
         logger.info(f'{self.workspace_dir}')
         from .event import EventType, DISPATCHER
-        DISPATCHER.register(EventType.DocumentActivated, self.on_document_activated)
+        DISPATCHER.register(EventType.DocumentActivated,
+                            self.on_document_activated)
 
         self.lsp: Dict[str, ClientHandler] = {}
 
@@ -113,5 +114,8 @@ class WorkSpace:
             self.lsp[filetype] = handler
             self.loop.create_task(process_async(
                 handler.queue, handler.client,  self.loop))
+
+            from .event import EventType, DISPATCHER
+            DISPATCHER.enqueue(EventType.LspLaunched, handler)
 
         return handler

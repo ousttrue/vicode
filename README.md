@@ -1,5 +1,5 @@
 # vicode
-vscode style vi.
+vscode style vi powered by [ptk](https://python-prompt-toolkit.readthedocs.io/en/master/index.html).
 
 ## layout
 
@@ -24,11 +24,23 @@ vscode style vi.
 
 ## TODO:
 
+* [ ] lexer: syntax highlight
 * [x] editor: tab
+* [ ] editor: lineno
+* [ ] editor: sign
 * [x] panel: tab
 * [x] panel: logger
 * [x] sidebar: tab
 * [ ] command: completion. :e
-* [ ] command: EventCommand
-* [ ] lsp: client
-* [ ] syntax highlight
+* [x] lsp: client
+* [ ] lsp: diagnostics
+* [ ] lsp: completion
+* [ ] lsp: jump defnition
+* [ ] lsp: hover
+* [ ] side: fileselector
+* [ ] side: bufferselector
+* [ ] side: test runner
+* [ ] dap: launcher
+* [ ] dap: breakpoint
+* [ ] dap: variable list
+* [ ] dap: call stack

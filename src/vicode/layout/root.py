@@ -6,6 +6,7 @@ import prompt_toolkit.key_binding
 
 class RootLayout:
     def __init__(self, kb: prompt_toolkit.key_binding.KeyBindings) -> None:
+        self.kb = kb
         from .tab_window import TabWindow
         from .editor_window import EditorWindow
         from .command_window import CommandWindow
@@ -40,6 +41,17 @@ class RootLayout:
 
         self.has_focus = prompt_toolkit.filters.Condition(
             self._has_focus_any_window)
+
+        from ..event import EventType, DISPATCHER
+        DISPATCHER.register(EventType.LspLaunched, self.on_lsp_launched)
+
+    def on_lsp_launched(self, handler):
+        from .diagnostics import Diagnostics
+        diagnostics = Diagnostics(self.kb, handler.filetype)
+        self.panel.add(diagnostics)
+
+        from .. import lsp
+        handler.client.callbacks[lsp.client.NotificationTypes.diagnostics] = diagnostics.on_diagnostics
 
     def _has_focus_any_window(self):
         app = get_app()

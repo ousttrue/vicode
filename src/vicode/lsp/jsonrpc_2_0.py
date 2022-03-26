@@ -67,10 +67,10 @@ def send_message(stdin: asyncio.StreamWriter, message):
 
 
 class RpcDispatcher:
-    def __init__(self) -> None:
+    def __init__(self, on_notification) -> None:
         self._request_id = 1
         self._request_map: Dict[int, asyncio.Future] = {}
-        self._notify_map: Dict[str, Any] = {}
+        self._on_notification = on_notification
 
     async def read_rpc_message_async(self, stdout: asyncio.StreamReader):
         length = 0
@@ -111,7 +111,7 @@ class RpcDispatcher:
             method = message.get('method')
             if method:
                 # notification
-                await self.process_notification_async(method, message.get('params'))
+                await self._on_notification(method, message.get('params'))
             else:
                 raise RuntimeError(message)
 
@@ -124,13 +124,6 @@ class RpcDispatcher:
 
     async def process_error_async(self, message_id: int, error):
         raise NotImplementedError()
-
-    async def process_notification_async(self, method: str, data):
-        callback = self._notify_map.get(method)
-        if not callback:
-            logger.warning(f'unknown notification: {method} => {data}')
-            return
-        callback(data)
 
     def request(self, stdin: asyncio.StreamWriter, method: str, params) -> asyncio.Future:
         request_id = self._request_id
@@ -147,6 +140,3 @@ class RpcDispatcher:
     def notify(self, stdin: asyncio.StreamWriter, method: str, params):
         message = make_notification(method, params)
         send_message(stdin, message)
-
-    def on_notify(self, method: str, callback):
-        self._notify_map[method] = callback

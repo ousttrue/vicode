@@ -1,7 +1,8 @@
 '''
 https://microsoft.github.io/language-server-protocol/specifications/specification-current/
 '''
-from typing import Optional
+from typing import Optional, Dict, Callable, Any
+from enum import Enum, auto
 import pathlib
 import platform
 import asyncio
@@ -20,10 +21,19 @@ else:
     }
 
 
+class NotificationTypes(Enum):
+    diagnostics = auto()
+
+
 class Client:
     def __init__(self, *command: str, workspace_dir: Optional[pathlib.Path] = None) -> None:
         self.command = command
         self.workspce_dir = workspace_dir
+        self.callbacks: Dict[NotificationTypes, Callable[[Any], None]] = {}
+
+    @staticmethod
+    def from_filetype(filetype: str) -> 'Client':
+        return Client(*LSP_COMMAND_MAP[filetype])
 
     async def launch(self, loop: asyncio.AbstractEventLoop):
         self._process = await asyncio.subprocess.create_subprocess_exec(*self.command,
@@ -32,9 +42,19 @@ class Client:
                                                                         stderr=asyncio.subprocess.PIPE,
                                                                         )
 
-        self.rpcDispatcher = jsonrpc_2_0.RpcDispatcher()
+        self.rpcDispatcher = jsonrpc_2_0.RpcDispatcher(
+            self.process_notification_async)
         loop.create_task(self._out_async())
         loop.create_task(self._err_async())
+
+    async def process_notification_async(self, method: str, data):
+        match method:
+            case 'textDocument/publishDiagnostics':
+                callback = self.callbacks.get(NotificationTypes.diagnostics)
+                if callback:
+                    callback(data)
+            case _:
+                logger.warning(f'unknown notification: {method} => {data}')
 
     # def __del__(self):
     #     if isinstance(self._process.returncode, int):
@@ -87,7 +107,7 @@ class Client:
 
     def notify_exit(self):
         '''
-        https://microsoft.github.io/language-server-protocol/specifications/specification-current/#exit        
+        https://microsoft.github.io/language-server-protocol/specifications/specification-current/#exit
         '''
         assert(self._process.stdin)
         self.rpcDispatcher.notify(self._process.stdin, 'exit', None)
@@ -101,7 +121,7 @@ class Client:
 
     def notify_textDocument_didOpen(self, params: protocol.DidOpenTextDocumentParams):
         '''
-        https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_didOpen        
+        https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_didOpen
         '''
         assert(self._process.stdin)
         self.rpcDispatcher.notify(
@@ -109,7 +129,7 @@ class Client:
 
     def notify_textDocument_didClose(self, params: protocol.DidCloseTextDocumentParams):
         '''
-        https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_didClose        
+        https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_didClose
         '''
         assert(self._process.stdin)
         self.rpcDispatcher.notify(

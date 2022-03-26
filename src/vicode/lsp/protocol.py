@@ -1463,3 +1463,30 @@ class DidCloseTextDocumentParams(TypedDict):
     '''
     textDocument: TextDocumentIdentifier
 
+
+class PublishDiagnosticsParamsOptional(TypedDict, total=False):
+    '''
+    Optional the version number of the document the diagnostics are published
+    for.
+
+    @since 3.15.0
+    '''
+    version: int
+
+
+class PublishDiagnosticsParamsRequired(TypedDict):
+    '''
+    The URI for which diagnostic information is reported.
+    '''
+    uri: str
+
+    '''
+    An array of diagnostic information items.
+    '''
+    diagnostics: List[Diagnostic]
+
+
+class PublishDiagnosticsParams(PublishDiagnosticsParamsRequired, PublishDiagnosticsParamsOptional):
+    '''
+    https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_publishDiagnostics    
+    '''

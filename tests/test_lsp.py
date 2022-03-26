@@ -15,29 +15,30 @@ class TestLanguageServer(unittest.IsolatedAsyncioTestCase):
         from vicode.lsp import client
         from vicode.lsp import protocol
 
-        client = await client.popen_pyls(asyncio.get_event_loop())
-        self.assertIsNotNone(client)
+        lsp = client.Client.from_filetype('python')
+
+        def on_diagnostics(params):
+            publishDiagnostic_future.set_result(params)
+        lsp.callbacks[client.NotificationTypes.diagnostics] = on_diagnostics
 
         publishDiagnostic_future = asyncio.Future()
 
-        def on_notify(params):
-            publishDiagnostic_future.set_result(params)
-        client.rpcDispatcher.on_notify(
-            'textDocument/publishDiagnostics', on_notify)
+        # launch
+        await lsp.launch(asyncio.get_running_loop())
 
         # initialize
-        response = await client.request_initialize(protocol.InitializeParams(
+        response = await lsp.request_initialize(protocol.InitializeParams(
             processId=os.getpid(),
             capabilities=protocol.ClientCapabilities(),
         ))
         self.assertTrue('capabilities' in response)
 
         # initialized
-        client.notify_initialized(protocol.InitializedParams())
+        lsp.notify_initialized(protocol.InitializedParams())
 
         # open
         uri = FILE
-        client.notify_textDocument_didOpen(protocol.DidOpenTextDocumentParams(
+        lsp.notify_textDocument_didOpen(protocol.DidOpenTextDocumentParams(
             textDocument=protocol.TextDocumentItem(
                 uri=str(uri),
                 languageId='python',
@@ -51,7 +52,7 @@ class TestLanguageServer(unittest.IsolatedAsyncioTestCase):
         self.assertIsNotNone(diagnostic)
 
         # shutdown
-        await client.request_shutdown()
+        await lsp.request_shutdown()
         self.assertTrue(True)
 
 

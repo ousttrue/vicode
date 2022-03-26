@@ -15,6 +15,7 @@ class EventType(Enum):
     Invalidated = auto()
     BufferCreated = auto()
     DocumentActivated = auto()
+    LspLaunched = auto()
 
 
 class EventValue(NamedTuple):
