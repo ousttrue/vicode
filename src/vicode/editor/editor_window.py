@@ -5,7 +5,7 @@ import prompt_toolkit.buffer
 import prompt_toolkit.key_binding
 import prompt_toolkit.widgets
 import prompt_toolkit.filters
-from .tab_window import TabWindow
+from ..layout.tab_window import TabWindow
 
 
 class OpenCommand(NamedTuple):

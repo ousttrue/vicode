@@ -3,7 +3,7 @@ import os
 import asyncio
 import pathlib
 import logging
-from .layout.editor_document import EditorDocument
+from .editor.editor_document import EditorDocument
 from . import lsp
 
 logger = logging.getLogger(__name__)

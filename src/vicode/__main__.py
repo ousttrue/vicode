@@ -1,4 +1,3 @@
-from typing import List
 import asyncio
 import logging
 import pathlib
@@ -96,5 +95,5 @@ async def main():
 
 
 if __name__ == '__main__':
-    import asyncio
     asyncio.run(main())
+

@@ -8,7 +8,7 @@ class RootLayout:
     def __init__(self, kb: prompt_toolkit.key_binding.KeyBindings) -> None:
         self.kb = kb
         from .tab_window import TabWindow
-        from .editor_window import EditorWindow
+        from ..editor.editor_window import EditorWindow
         from .command_window import CommandWindow
         from .message_window import MessageWindow
         from .logger_window import LoggerWindow

@@ -41,7 +41,7 @@ class JumpList:
         if isinstance(item, JumpItem):
             # logger.debug('enter')
             from ..event import EventType, DISPATCHER
-            from .editor_window import OpenCommand
+            from ..editor.editor_window import OpenCommand
             DISPATCHER.enqueue(EventType.OpenCommand, OpenCommand(
                 item.location, row=item.row, col=item.col))
 

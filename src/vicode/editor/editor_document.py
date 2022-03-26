@@ -6,6 +6,15 @@ import prompt_toolkit.widgets
 import prompt_toolkit.layout
 import prompt_toolkit.key_binding.vi_state
 import prompt_toolkit.selection
+import prompt_toolkit.lexers
+import prompt_toolkit.document
+
+
+def create_lexer(location: Optional[pathlib.Path]) -> prompt_toolkit.lexers.Lexer:
+    if location:
+        return prompt_toolkit.lexers.PygmentsLexer.from_filename(str(location), sync_from_start=False)
+    else:
+        return prompt_toolkit.lexers.SimpleLexer()
 
 
 FILE_TYPE_MAP = {
@@ -16,12 +25,13 @@ FILE_TYPE_MAP = {
 class EditorDocument:
     def __init__(self, location: pathlib.Path) -> None:
         self.location = location
-        self.textarea = prompt_toolkit.widgets.TextArea()
+        self.textarea = prompt_toolkit.widgets.TextArea(
+            lexer=create_lexer(location))
         self.textarea.text = location.read_text()
 
         self.ft = FILE_TYPE_MAP[location.suffix.lower()]
 
-        from .statusbar_window import StatusBarWindow, StatusBarRightWindow
+        from ..layout.statusbar_window import StatusBarWindow, StatusBarRightWindow
         self.status = prompt_toolkit.layout.VSplit(
             [
                 StatusBarWindow(self.get_status),
