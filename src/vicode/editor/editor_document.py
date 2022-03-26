@@ -1,4 +1,5 @@
 from typing import Optional
+import re
 import pathlib
 import nerdfonts
 from prompt_toolkit.application.current import get_app
@@ -9,6 +10,7 @@ import prompt_toolkit.selection
 import prompt_toolkit.lexers
 import prompt_toolkit.document
 import prompt_toolkit.buffer
+import prompt_toolkit.completion
 
 
 def create_lexer(location: Optional[pathlib.Path]) -> prompt_toolkit.lexers.Lexer:
@@ -23,13 +25,40 @@ FILE_TYPE_MAP = {
 }
 
 
+class DocumentWordsCompleter(prompt_toolkit.completion.Completer):
+    """
+    Completer that completes on words that appear already in the open document.
+
+    TODO: LSP
+    """
+
+    def get_completions(self, document, complete_event):
+        word_before_cursor = document.get_word_before_cursor()
+
+        # Create a set of words that could be a possible completion.
+        words = set()
+
+        for w in re.split(r'\W', document.text):
+            if len(w) > 1:
+                if w.startswith(word_before_cursor) and w != word_before_cursor:
+                    words.add(w)
+
+        # Yield Completion instances.
+        for w in sorted(words):
+            yield prompt_toolkit.completion.Completion(w, start_position=-len(word_before_cursor))
+
+
 class EditorDocument:
     def __init__(self, location: pathlib.Path) -> None:
         self.location = location
-        self.buffer = prompt_toolkit.buffer.Buffer()
+        self.buffer = prompt_toolkit.buffer.Buffer(
+            completer=DocumentWordsCompleter()
+        )
         self.control = prompt_toolkit.layout.BufferControl(
             self.buffer, lexer=create_lexer(location))
-        self.container = prompt_toolkit.layout.Window(self.control)
+        self.container = prompt_toolkit.layout.Window(self.control, left_margins=[
+            prompt_toolkit.layout.NumberedMargin(),
+        ])
         self.buffer.text = location.read_text()
 
         self.ft = FILE_TYPE_MAP[location.suffix.lower()]

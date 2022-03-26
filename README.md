@@ -1,5 +1,6 @@
 # vicode
 vscode style vi powered by [ptk](https://python-prompt-toolkit.readthedocs.io/en/master/index.html).
+Developed with reference to [pyvim](https://github.com/prompt-toolkit/pyvim).
 
 ## layout
 
@@ -26,21 +27,31 @@ vscode style vi powered by [ptk](https://python-prompt-toolkit.readthedocs.io/en
 
 * [x] lexer: syntax highlight
 * [x] editor: tab
-* [ ] editor: lineno
-* [ ] editor: sign
+* [x] editor: merge: lineno
+* [ ] editor: merge: sign
+* [x] editor: word completion
+* [ ] editor: buffer search
 * [x] panel: tab
 * [x] panel: logger
 * [x] sidebar: tab
-* [ ] command: completion. :e
+* [x] command: e
+* [ ] command: bd
+* [ ] command: w
 * [x] lsp: client
-* [ ] lsp: diagnostics
+* [x] lsp: diagnostics jumplist
+* [ ] lsp: diagnostics high light
 * [ ] lsp: completion
-* [ ] lsp: jump defnition
+* [ ] lsp: defnition(jump)
 * [ ] lsp: hover
-* [ ] side: fileselector
-* [ ] side: bufferselector
-* [ ] side: test runner
+* [ ] sidebar: fileselector
+* [ ] sidebar: bufferselector
+* [ ] sidebar: test runner
 * [ ] dap: launcher
-* [ ] dap: breakpoint
+* [ ] dap: merge: breakpoint
 * [ ] dap: variable list
 * [ ] dap: call stack
+
+## References
+
+* https://microsoft.github.io/language-server-protocol/
+* https://microsoft.github.io/debug-adapter-protocol/
